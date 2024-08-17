@@ -995,68 +995,70 @@ sap.ui.define([
 
                 const oSelected = this.getView().byId("idReservedTable__").getSelectedItem()
 
-                const sDriverMobile = oSelected.getBindingContext().getObject().driverMobile,
-                    sDriverName = oSelected.getBindingContext().getObject().driverName,
-                    sSlotNumber = oSelected.getBindingContext().getObject().reservedSlot.slotNumbers,
-                    dReservedDate = oSelected.getBindingContext().getObject().reservedDate
-                oSelected.getBindingContext().delete("$auto").then(function async() {
-                    if (dReservedDate === currentDay) {
-                        var oParkingBinding = oModel.bindList("/parkingSlots");
+                const sDriverMobile = oSelected.getBindingContext().getObject().Drivermobile,
+                    sDriverName = oSelected.getBindingContext().getObject().Drivername,
+                    sSlotNumber = oSelected.getBindingContext().getObject().Reservedslot,
+                    dReservedDate = oSelected.getBindingContext().getObject().Reserveddate,
+                    sUUID = oSelected.getBindingContext().getObject().Uuid
 
-                        oParkingBinding.filter([
-                            new Filter("slotNumbers", FilterOperator.EQ, sSlotNumber)
-                        ]);
+                oModel.remove(`/ZPARKING_RESERVE_SSet('${sUUID}')`, {
+                    success: function () {
 
-                        oParkingBinding.requestContexts().then(function (aParkingContexts) {
-                            if (aParkingContexts.length > 0) {
-                                var oParkingContext = aParkingContexts[0];
-                                var oParkingData = oParkingContext.getObject();
-                                // Update 
-                                oParkingData.status = "Available"
-                                oParkingContext.setProperty("status", oParkingData.status);
-                                oModel.submitBatch("updateGroup");
-                                oThis.getView().byId("idAllSlots").getBinding("items").refresh();
-                                oModel.refresh()
+                        MessageBox.information("Rejected and SMS will be sent")
+                        oThis.ConfirmDeleteDialog.close()
+                        // Unassign SMS
+
+                        const accountSid = Config.twilio.accountSid;
+                        const authToken = Config.twilio.authToken;
+
+                        // debugger
+                        const toNumber = `+91${sDriverMobile}`
+                        const fromNumber = '+15856485867';
+                        const messageBody = `Hi ${sDriverName} We regret to inform you that \nCurrently we can not proceed with your reservation.\nyou are failed to come on reserved day\nThank you,\nVishal Parking Management`; // Message content
+
+                        // Twilio API endpoint for sending messages
+                        const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
+
+
+                        // Send POST request to Twilio API using jQuery.ajax
+                        $.ajax({
+                            url: url,
+                            type: 'POST',
+                            headers: {
+                                'Authorization': 'Basic ' + btoa(accountSid + ':' + authToken)
+                            },
+                            data: {
+                                To: toNumber,
+                                From: fromNumber,
+                                Body: messageBody
+                            },
+                            success: function (data) {
+                                sap.m.MessageToast.show('SMS sent successfully!');
+                            },
+                            error: function (error) {
+                                sap.m.MessageToast.show('Failed to send SMS: ' + error);
                             }
-                        })
+                        });
+                        // SMS END
+
+
+                        if (dReservedDate === currentDay) {
+
+                            oModel.update(`/ZPARKING_SLOTS_SSet('${sSlotNumber}')`, { Status: "AVAILABLE" }, {
+                                success: function () {
+
+                                },
+                                error: function () {
+
+                                }
+
+                            })
+
+                        }
+                    },
+                    error: function () {
 
                     }
-                    MessageBox.information("Rejected and SMS will be sent")
-                    this.ConfirmDeleteDialog.close()
-                    // Unassign SMS
-
-                    const accountSid = Config.twilio.accountSid;
-                    const authToken = Config.twilio.authToken;
-
-                    // debugger
-                    const toNumber = `+91${sDriverMobile}`
-                    const fromNumber = '+15856485867';
-                    const messageBody = `Hi ${sDriverName} We regret to inform you that \nCurrently we can not proceed with your reservation.\nyou are failed to come on reserved day\nThank you,\nVishal Parking Management`; // Message content
-
-                    // Twilio API endpoint for sending messages
-                    const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
-
-
-                    // Send POST request to Twilio API using jQuery.ajax
-                    $.ajax({
-                        url: url,
-                        type: 'POST',
-                        headers: {
-                            'Authorization': 'Basic ' + btoa(accountSid + ':' + authToken)
-                        },
-                        data: {
-                            To: toNumber,
-                            From: fromNumber,
-                            Body: messageBody
-                        },
-                        success: function (data) {
-                            sap.m.MessageToast.show('SMS sent successfully!');
-                        },
-                        error: function (error) {
-                            sap.m.MessageToast.show('Failed to send SMS: ' + error);
-                        }
-                    });
-                    // SMS END
                 })
 
             },
@@ -1123,11 +1125,11 @@ sap.ui.define([
                 }
                 const oSelected = this.getView().byId("idReservedTable__").getSelectedItem(),
                     oObject = oSelected.getBindingContext().getObject(),
-                    oDriverName = oObject.driverName,
-                    oDriverMobile = oObject.driverMobile,
-                    oVehicleNumber = oObject.vehicleNumber,
-                    oVendorName = oObject.vendor_Name,
-                    oSlot = oObject.reservedSlot.slotNumbers
+                    oDriverName = oObject.Drivername,
+                    oDriverMobile = oObject.Drivermobile,
+                    oVehicleNumber = oObject.Vehiclenumber,
+                    oVendorName = oObject.Vendorname,
+                    oSlot = oObject.Reservedslot
 
                 if (oSelected) {
                     this.ConfirmAssignDialog.open()
@@ -1150,7 +1152,10 @@ sap.ui.define([
                 var oThis = this
                 const oSelected = this.getView().byId("idReservedTable__").getSelectedItem().getBindingContext().getObject()
                 const oBindingContext = this.getView().byId("idReservedTable__").getSelectedItem().getBindingContext(),
-                    oBookedDate = oSelected.reservedDate
+                    oBookedDate = oSelected.Reserveddate,
+                    // sSlotNumber = oSelected.Slotnumbers,
+                    // oVehicle = oSelected.Vehiclenumber,
+                    sUuid = oSelected.Uuid;
 
                 var currentDate = new Date();
                 var year = currentDate.getFullYear();
@@ -1171,17 +1176,19 @@ sap.ui.define([
                     oslotNumber = oUserView.byId("_dhmeI__nput").getValue(),
                     oCheckInTime = FinalDate
 
-                const newAssign = {
-                    driverName: oDriverName,
-                    driverMobile: oDriverMobile,
-                    vehicleNumber: oVehicleNumber,
-                    deliveryType: odeliveryType,
-                    vendor_Name: oVendorName,
-                    slotNumber_ID: oSelected.reservedSlot.ID,
-                    checkInTime: oCheckInTime
+
+                const newAssignPayload = {
+                    Status: "NOT AVAILABLE",
+                    Assigneddrivername: oDriverName,
+                    Assigneddrivermobile: oDriverMobile,
+                    Assignedvehiclenumber: oVehicleNumber,
+                    Assigneddeliverytype: odeliveryType,
+                    VendorName: oVendorName,
+                    Assignedcheckintime: oCheckInTime
                 }
-                var oModel = this.getView().getModel(),
-                    oBindList = oModel.bindList("/assignedSlots");
+
+                var oModel = this.getView().getModel()
+                // oBindList = oModel.bindList("/assignedSlots");
                 // if (!oDriverName || !oDriverMobile || !oVehicleNumber) {
 
                 //     MessageToast.show("Please Enter All Required Fields")
@@ -1240,52 +1247,126 @@ sap.ui.define([
                 }
                 else {
                     if (oBookedDate === currentDate) {
-                        newAssignSuccess = oBindList.create(newAssign);
+                        // newAssignSuccess = oBindList.create(newAssign);
+                        oModel.update(`/ZPARKING_SLOTS_SSet('${oslotNumber}')`, newAssignPayload, {
+                            success: async function (oData, oResponse) {
+
+                                const accountSid = Config.twilio.accountSid;
+                                const authToken = Config.twilio.authToken;
+
+                                // debugger
+                                const toNumber = `+91${oDriverMobile}`
+                                const fromNumber = '+15856485867';
+                                const messageBody = `Hi ${oDriverName} a Slot number ${oslotNumber} is alloted to you vehicle number ${oVehicleNumber} \nVendor name: ${oVendorName}. \nThank You,\nVishal Parking Management.`; // Message content
+
+                                // Twilio API endpoint for sending messages
+                                const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
+
+
+                                // Send POST request to Twilio API using jQuery.ajax
+                                $.ajax({
+                                    url: url,
+                                    type: 'POST',
+                                    async: true,
+                                    headers: {
+                                        'Authorization': 'Basic ' + btoa(accountSid + ':' + authToken)
+                                    },
+                                    data: {
+                                        To: toNumber,
+                                        From: fromNumber,
+                                        Body: messageBody
+                                    },
+                                    success: function (data) {
+                                        // console.log('SMS sent successfully:', data);
+                                        // Handle success, e.g., show a success message
+                                        MessageToast.show('if number exists SMS will be sent!');
+                                    },
+                                    error: function (error) {
+                                        // console.error('Error sending SMS:', error);
+                                        // Handle error, e.g., show an error message
+                                        MessageToast.show('Failed to send SMS');
+                                    }
+                                });
+
+                                // SMS END
+
+                                // Function to make an announcement
+                                function makeAnnouncement(message, lang = 'en-US') {
+                                    // Check if the browser supports the Web Speech API
+                                    if ('speechSynthesis' in window) {
+                                        // Create a new instance of SpeechSynthesisUtterance
+                                        var utterance = new SpeechSynthesisUtterance(message);
+
+                                        // Set properties (optional)
+                                        utterance.pitch = 1; // Range between 0 (lowest) and 2 (highest)
+                                        utterance.rate = 0.75;  // Range between 0.1 (lowest) and 10 (highest)
+                                        utterance.volume = 1; // Range between 0 (lowest) and 1 (highest)
+                                        utterance.lang = lang; // Set the language
+
+                                        // Speak the utterance
+                                        debugger
+                                        window.speechSynthesis.speak(utterance);
+                                    } else {
+                                        console.log('Sorry, your browser does not support the Web Speech API.');
+                                    }
+                                }
+
+                                // Example usage
+                                makeAnnouncement(`कृपया ध्यान दें। वाहन नंबर ${oVehicleNumber} को स्लॉट नंबर ${oslotNumber} द्वारा आवंटित किया गया है।`, 'hi-IN');
+                                // makeAnnouncement(`దయచేసి వినండి. వాహనం నంబర్ ${oVehicleNumber} కు స్లాట్ నంబర్ ${sSlotNumber} కేటాయించబడింది.`, 'te-IN');
+
+                                // Lorry Animation
+                                var oImage = oThis.byId("movingImage");
+                                oImage.setVisible(true);
+                                oImage.addStyleClass("animate");
+                                setTimeout(function () {
+                                    oImage.setVisible(false);
+                                }, 7000);
+
+
+                                // open receipt    
+                                // test
+                                if (!oThis.ReceiptDailog) {
+                                    oThis.ReceiptDailog = await oThis.loadFragment("Receipt")
+                                }
+                                oThis.ReceiptDailog.open();
+                                // barcode generations with value
+                                var obj = oslotNumber
+                                oThis._generateBarcode(obj)
+                                oThis.byId("textprint1").setText(oVehicleNumber)
+                                oThis.byId("textprint5").setText(oslotNumber)
+                                oThis.byId("textprint2").setText(oDriverName)
+                                oThis.byId("textprint3").setText(oDriverMobile)
+                                oThis.byId("textprint4").setText(odeliveryType)
+                                oThis.byId("dfvtextprint1").setText(`Date: ${year}-${month}-${day} \nTIME: ${hours}:${minutes}:${seconds}`)
+
+
+                                oModel.remove(`/ZPARKING_RESERVE_SSet('${sUuid}')`, {
+                                    success: function (oData, resp) {
+
+                                        MessageToast.show("allotment successful")
+                                        oThis.getView().byId("_IDGen__dfgdInput1").setValue("");
+                                        oThis.getView().byId("_IDGexgrsdfgnIn__put2").setValue("");
+                                        oThis.getView().byId("afidasgredhmeI__nput").setValue("");
+                                        oThis.getView().byId("_dhmeI__nput").setValue("");
+                                        oThis.getView().byId("idss__n0075put").setValue("");
+                                        oThis.ConfirmAssignDialog.close()
+
+
+                                    },
+                                    error: function () {
+                                        MessageBox.show("Assigned successfully but failed to remove from reservations")
+                                    },
+                                })
+                            },
+                            error: async function (err) {
+                                MessageBox.show("Error while assigning the slot")
+                            }
+                        })
+
 
                     } else {
                         MessageBox.information("You can assign current date reservations only");
-                    }
-                    if (newAssignSuccess) {
-                        // function Next() {
-                        MessageToast.show("allotment successful")
-                        this.getView().byId("idAssignedTable").getBinding("items").refresh();
-                        this.getView().byId("_IDGen__dfgdInput1").setValue("");
-                        this.getView().byId("_IDGexgrsdfgnIn__put2").setValue("");
-                        this.getView().byId("afidasgredhmeI__nput").setValue("");
-                        this.getView().byId("_dhmeI__nput").setValue("");
-                        this.getView().byId("idss__n0075put").setValue("");
-                        this.ConfirmAssignDialog.close()
-
-                        // Remove current record from the current table
-                        oBindingContext.delete("$auto").then(function () {
-
-                            // Update Parking Slot Status
-                            var oParkingSlotBinding = oModel.bindList("/parkingSlots");
-
-                            oParkingSlotBinding.filter([
-                                new Filter("slotNumbers", FilterOperator.EQ, oslotNumber)
-                            ]);
-
-                            oParkingSlotBinding.requestContexts().then(function (aParkingContexts) {
-                                if (aParkingContexts.length > 0) {
-                                    var oParkingContext = aParkingContexts[0];
-                                    var oParkingData = oParkingContext.getObject();
-
-                                    // Update 
-                                    oParkingData.status = "Not Available"
-                                    oParkingContext.setProperty("status", oParkingData.status);
-                                    oModel.submitBatch("updateGroup");
-                                    // oThis.getView().byId("idAllSlots").getBinding("items").refresh();
-                                    oModel.refresh(); // Refresh the model to get the latest data
-
-                                } else {
-                                    MessageToast.show("Slot Unavailable")
-                                }
-                            })
-                        })
-
-                        // }
-                        // Next() //calling 
                     }
                 }
 
@@ -1312,10 +1393,11 @@ sap.ui.define([
             },
             onRejectReservePress: function () {
                 debugger
+                const oThis = this
                 const oModel = this.getView().getModel()
                 const oSelected = this.getView().byId("idReservationsTable").getSelectedItem(),
-                    sUUId = oSelected.getBindingContext().getObject().Uuid;
-                    sDriverName = oSelected.getBindingContext().getObject().Drivername;
+                    sUUId = oSelected.getBindingContext().getObject().Uuid,
+                    sDriverName = oSelected.getBindingContext().getObject().Drivername,
                     sDriverMobile = oSelected.getBindingContext().getObject().Drivermobile;
 
                 oModel.remove(`/ZPARKING_RESERVE_SSet('${sUUId}')`, {
@@ -1357,7 +1439,7 @@ sap.ui.define([
                         });
                         // SMS END
 
-                        this.confirmRejectDialog.close()
+                        oThis.confirmRejectDialog.close()
 
                     },
                     error: function () {
@@ -1366,7 +1448,12 @@ sap.ui.define([
                     }
                 })
             },
+            oncloseDataonDataAnalysis: function () {
+                if (this.oDataDialog.isOpen()) {
+                    this.oDataDialog.close()
+                }
 
+            },
 
             onDataAnalysisPress: async function () {
                 debugger
@@ -1379,41 +1466,41 @@ sap.ui.define([
                 oModel.refresh()
                 this._setHistoryModel();
 
+                var oModel = this.getView().getModel();
+                oModel.read("/ZPARKING_SLOTS_SSet", {
+                    success: function (oData) {
+                        var aItems = oData.results; // Assuming the data is returned in a `results` array
+                        var availableCount = aItems.filter((item) => item.Status === "AVAILABLE").length;
+                        var occupiedCount = aItems.filter((item) => item.Status === "NOT AVAILABLE").length;
+                        var reservedCount = aItems.filter((item) => item.Status === "RESERVED").length;
 
-                oModel.bindList("/parkingSlots").requestContexts().then(function (aContexts) {
-                    var aItems = aContexts.map(function (oContext) {
-                        return oContext.getObject();
-                    });
+                        var aChartData = {
+                            Items: [
+                                {
+                                    status: `Available-${availableCount}`,
+                                    Count: availableCount,
+                                },
+                                {
+                                    status: `Not Available-${occupiedCount}`,
+                                    Count: occupiedCount,
 
-                    var availableCount = aItems.filter((item) => item.status === "Available").length;
-                    var occupiedCount = aItems.filter((item) => item.status === "Not Available").length;
-                    var reservedCount = aItems.filter((item) => item.status === "Reserved").length;
+                                },
+                                {
+                                    status: `Reserved-${reservedCount}`,
+                                    Count: reservedCount,
 
-                    var aChartData = {
-                        Items: [
-                            {
-                                status: `Available-${availableCount}`,
-                                Count: availableCount,
-                            },
-                            {
-                                status: `Not Available-${occupiedCount}`,
-                                Count: occupiedCount,
+                                }
+                            ]
+                        };
 
-                            },
-                            {
-                                status: `Reserved-${reservedCount}`,
-                                Count: reservedCount,
-
-                            }
-                        ]
-                    };
-
-                    var oParkingLotModel = new JSONModel();
-                    oParkingLotModel.setData(aChartData);
-                    oThis.getView().setModel(oParkingLotModel, "ParkingLotModel");
-
-                }).catch(function (oError) {
-                    console.error(oError);
+                        var oParkingLotModel = new JSONModel();
+                        oParkingLotModel.setData(aChartData);
+                        oThis.getView().setModel(oParkingLotModel, "ParkingLotModel");
+                    },
+                    error: function (oError) {
+                        // Handle error here
+                        console.error("Error while reading data:", oError);
+                    }
                 });
             },
             _setHistoryModel: function () {
@@ -1421,30 +1508,33 @@ sap.ui.define([
                 var oModel = this.getOwnerComponent().getModel();
                 var that = this;
 
-                // Bind the list and request contexts
-                oModel.bindList("/history").requestContexts().then(function (aContexts) {
-                    // Extract the data from the contexts
-                    var aItems = aContexts.map(function (oContext) {
-                        return oContext.getObject();
-                    });
 
-                    // Process the data
-                    var oProcessedData = that._processHistoryData(aItems);
+                var oModel = this.getView().getModel();
+                oModel.read("/ZPARKING_HISTORYSet", {
+                    success: function (oData) {
+                        var aItems = oData.results; // Assuming the data is returned in a `results` array
 
-                    // Set the processed data to a JSON model and set it to the view
-                    var oHistoryModel = new sap.ui.model.json.JSONModel();
-                    oHistoryModel.setData(oProcessedData);
-                    that.getView().setModel(oHistoryModel, "HistoryModel");
-                }).catch(function (oError) {
-                    console.error(oError);
+                        // Process the data
+                        var oProcessedData = that._processHistoryData(aItems);
+
+                        // Set the processed data to a JSON model and set it to the view
+                        var oHistoryModel = new sap.ui.model.json.JSONModel();
+                        oHistoryModel.setData(oProcessedData);
+                        that.getView().setModel(oHistoryModel, "HistoryModel");
+                    },
+                    error: function (oError) {
+                        // Handle error here
+                        console.error("Error while reading data:", oError);
+                    }
                 });
+
             },
 
             _processHistoryData: function (aItems) {
                 var oData = {};
 
                 aItems.forEach(function (item) {
-                    var dateTimeParts = item.checkInTime.split(" TIME "); // Split the string to separate date and time
+                    var dateTimeParts = item.Checkintime.split(" TIME "); // Split the string to separate date and time
                     var date = new Date(dateTimeParts[0]);
 
                     // Extract date part in local time
@@ -1462,9 +1552,9 @@ sap.ui.define([
                         };
                     }
 
-                    if (item.deliveryType === "InBound") {
+                    if (item.Deliverytype === "INBOUND") {
                         oData[formattedDate].inwardCount += 1;
-                    } else if (item.deliveryType === "OutBound") {
+                    } else if (item.Deliverytype === "OUTBOUND") {
                         oData[formattedDate].outwardCount += 1;
                     }
 
@@ -1475,6 +1565,7 @@ sap.ui.define([
                     Items: Object.values(oData)
                 };
             },
+
             _generateBarcode: function (barcodeValue) {
                 // Get the HTML control where the barcode will be rendered
                 var oHtmlControl = this.byId("barcodeContainer");

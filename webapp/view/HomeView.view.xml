@@ -646,6 +646,12 @@
                                     </m:OverflowToolbar>
                                 </m:headerToolbar>
                                 <m:columns>
+                                    <m:Column id="_IDGendhgfrColumn3" visible="false">
+                                        <m:Title
+                                            id="_IDGenTitlrthe5"
+                                            text="UUID"
+                                        />
+                                    </m:Column>
                                     <m:Column id="_IDGenColumn3">
                                         <m:Title
                                             id="_IDGenTitle5"
@@ -696,6 +702,11 @@
                                         class="TableContent"
                                     >
                                         <m:cells>
+                                            <m:Text
+                                                id="_IDGenTexsrgrtjt3"
+                                                text="{Uuid}"
+                                                class="TableContent"
+                                            />
                                             <m:Text
                                                 id="_IDGenText3"
                                                 text="{Drivername}"
