@@ -14,7 +14,7 @@
     xmlns:ui="sap.ui.commons"
     xmlns:html="http://www.w3.org/1999/xhtml"
 >
-        <!--  -->
+    <!--  -->
 
     <ObjectPageLayout
         id="idUserDataPage"
@@ -45,11 +45,11 @@
                             visible="false"
                         />
                         <m:Image
-                        id="movingImage"
-                        src="./images/TruckIn.gif"
-                        class="movingImage"
-                        visible="false"
-                    />
+                            id="movingImage"
+                            src="./images/TruckIn.gif"
+                            class="movingImage"
+                            visible="false"
+                        />
                     </m:HBox>
                 </expandedHeading>
 
@@ -66,10 +66,7 @@
                         />
                     </m:FlexBox>
                 </snappedHeading>
-                <actions>
-                    
-                </actions>
-
+                <actions />
             </ObjectPageDynamicHeaderTitle>
         </headerTitle>
 
@@ -307,7 +304,7 @@
                             <m:Table
                                 id="idAssignedTable"
                                 mode="MultiSelect"
-                                items="{/ZPARKING_SLOTS_SSet}"
+                                items="{path: '/ZPARKING_SLOTS_SSet', filters: [{path: 'Status', operator: 'EQ', value1: 'NOT AVAILABLE'}]}"
                                 class="Table"
                             >
                                 <m:headerToolbar>
@@ -459,7 +456,7 @@
                                             />
                                             <m:Text
                                                 id="idISBNColValue"
-                                                text="{Deliverytype}"
+                                                text="{Assigneddeliverytype}"
                                                 class="TableContent"
                                             />
 
@@ -608,7 +605,7 @@
                                 id="idReservedTable__"
                                 mode="MultiSelect"
                                 alternateRowColors="true"
-                                items="{/ZPARKING_RESERVE_SSet}"
+                                items="{path: '/ZPARKING_RESERVE_SSet',filters: [{path: 'Reservedslot',operator: 'NE',value1: ''}]}"
                             >
                                 <m:headerToolbar>
                                     <m:OverflowToolbar
@@ -635,7 +632,7 @@
                                             text="Delete"
                                             type="Unstyled"
                                             class="buttonRed"
-                                            press="onDeleteReservedPressToConfirm"
+                                            press="onDeleteReservedPressToCoitenfirm"
                                         />
                                         <m:Button
                                             id="_IDGenButton2"
@@ -646,7 +643,10 @@
                                     </m:OverflowToolbar>
                                 </m:headerToolbar>
                                 <m:columns>
-                                    <m:Column id="_IDGendhgfrColumn3" visible="false">
+                                    <m:Column
+                                        id="_IDGendhgfrColumn3"
+                                        visible="false"
+                                    >
                                         <m:Title
                                             id="_IDGenTitlrthe5"
                                             text="UUID"

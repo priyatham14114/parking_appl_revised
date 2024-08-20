@@ -50,11 +50,10 @@ sap.ui.define([
                 // this._setParkingLotModel();
 
             },
-            // onBeforeRendering: function () {
-            //     debugger
-            //     this.updateSoltsStatusbyDate();
-
-            // },
+            onBeforeRendering: function () {
+                debugger
+                this.updateSoltsStatusbyDate();
+            },
             onEditPress: function () {
                 debugger
                 var oTable = this.byId("idAssignedTable");
@@ -229,12 +228,13 @@ sap.ui.define([
 
             },
             onReservationsPress: async function () {
-
+                const oModel = this.getView().getModel()
                 debugger
                 if (!this.Reservationspopup) {
                     this.Reservationspopup = await this.loadFragment("Reservations")
                 }
                 this.Reservationspopup.open()
+                oModel.refresh(true)
 
             },
             onCloseReservations: function () {
@@ -246,41 +246,84 @@ sap.ui.define([
                 }
 
             },
+
             onSearch: function (oEvent) {
                 debugger
-                // add filter for search
+                // Add filters for search
                 var aFilters = [];
                 var sQuery = oEvent.getSource().getValue();
+            
                 if (sQuery && sQuery.length > 0) {
-                    var filterVehicle = new Filter("vehicleNumber", FilterOperator.Contains, sQuery);
-                    var filterSlot = new Filter("slotNumber/slotNumbers", FilterOperator.Contains, sQuery)
-
-                    var filterName = new Filter("driverName", FilterOperator.Contains, sQuery);
-                    var filterMobile = new Filter("driverMobile", FilterOperator.Contains, sQuery);
-                    var filterDelivery = new Filter("deliveryType", FilterOperator.Contains, sQuery);
-                    var filterVendor = new Filter("vendor_Name", FilterOperator.Contains, sQuery);
-
-                    var allFilter = new Filter([filterVehicle, filterSlot, filterName, filterMobile, filterDelivery, filterVendor]);
+                    // Filters for each field based on the search query
+                    var filterVehicle = new Filter("Assignedvehiclenumber", FilterOperator.Contains, sQuery);
+                    var filterSlot = new Filter("Slotnumbers", FilterOperator.Contains, sQuery);
+                    var filterName = new Filter("Assigneddrivername", FilterOperator.Contains, sQuery);
+                    var filterMobile = new Filter("Assigneddrivermobile", FilterOperator.Contains, sQuery);
+                    var filterDelivery = new Filter("Assigneddeliverytype", FilterOperator.Contains, sQuery);
+                    var filterVendor = new Filter("VendorName", FilterOperator.Contains, sQuery);
+            
+                    // Combine all the above filters with OR condition
+                    var searchFilters = new Filter({
+                        filters: [filterVehicle, filterSlot, filterName, filterMobile, filterDelivery, filterVendor],
+                        and: false
+                    });
+            
+                    // Filter to ensure Assignedvehiclenumber is not empty
+                    var vehicleFilter = new Filter("Assignedvehiclenumber", FilterOperator.NE, "");
+            
+                    // Combine search filters with the vehicle filter (AND condition)
+                    var allFilters = new Filter({
+                        filters: [searchFilters, vehicleFilter],
+                        and: true
+                    });
+            
+                    aFilters.push(allFilters);
+                } else {
+                    // If no query, just ensure the vehicle number is not empty
+                    aFilters.push(new Filter("Assignedvehiclenumber", FilterOperator.NE, ""));
                 }
-
-                // update list binding
+            
+                // Update list binding with the combined filters
                 var oList = this.byId("idAssignedTable");
                 var oBinding = oList.getBinding("items");
-                oBinding.filter(allFilter);
-
+                oBinding.filter(aFilters);
             },
+            
+            // onSearch: function (oEvent) {
+            //     debugger
+            //     // add filter for search
+            //     var aFilters = [];
+            //     var sQuery = oEvent.getSource().getValue();
+            //     if (sQuery && sQuery.length > 0) {
+            //         var filterVehicle = new Filter("Assignedvehiclenumber", FilterOperator.Contains, sQuery);
+            //         var filterSlot = new Filter("Slotnumbers", FilterOperator.Contains, sQuery)
+
+            //         var filterName = new Filter("Assigneddrivername", FilterOperator.Contains, sQuery);
+            //         var filterMobile = new Filter("Assigneddrivermobile", FilterOperator.Contains, sQuery);
+            //         var filterDelivery = new Filter("Assigneddeliverytype", FilterOperator.Contains, sQuery);
+            //         var filterVendor = new Filter("VendorName", FilterOperator.Contains, sQuery);
+
+            //         var allFilter = new Filter([filterVehicle, filterSlot, filterName, filterMobile, filterDelivery, filterVendor]);
+            //     }
+
+            //     // update list binding
+            //     var oList = this.byId("idAssignedTable");
+            //     var oBinding = oList.getBinding("items");
+            //     oBinding.filter(allFilter);
+
+            // },
             onSearchHistory: function (oEvent) {
                 debugger
                 // add filter for search
                 // var aFilters = [];
                 var sQuery = oEvent.getSource().getValue();
                 if (sQuery && sQuery.length > 0) {
-                    var filterVehicle = new Filter("vehicleNumber", FilterOperator.Contains, sQuery);
-                    var filterSlot = new Filter("historySlotNumber/slotNumbers", FilterOperator.Contains, sQuery);
-                    var filterName = new Filter("driverName", FilterOperator.Contains, sQuery);
-                    var filterMobile = new Filter("driverMobile", FilterOperator.Contains, sQuery);
-                    var filterDelivery = new Filter("deliveryType", FilterOperator.Contains, sQuery);
-                    var filterVendor = new Filter("vendor_Name", FilterOperator.Contains, sQuery);
+                    var filterVehicle = new Filter("Vehiclenumber", FilterOperator.Contains, sQuery);
+                    var filterSlot = new Filter("Historyslotnumber", FilterOperator.Contains, sQuery);
+                    var filterName = new Filter("Drivername", FilterOperator.Contains, sQuery);
+                    var filterMobile = new Filter("Drivermobile", FilterOperator.Contains, sQuery);
+                    var filterDelivery = new Filter("Deliverytype", FilterOperator.Contains, sQuery);
+                    var filterVendor = new Filter("VendorName", FilterOperator.Contains, sQuery);
 
                     var allFilter = new Filter([filterVehicle, filterSlot, filterName, filterMobile, filterDelivery, filterVendor]);
                 }
@@ -393,8 +436,8 @@ sap.ui.define([
                     oModel.read("/ZPARKING_SLOTS_SSet", {
                         filters: [ofilter],
                         success: async function (oData) {
-                            if (oData.result) {
-                                MessageBox.warning("You can not Assign.A Slot for " + sVehicle + " already assigned")
+                            if (oData.results.length>0) {
+                                MessageBox.warning("You can not Assign.A Slot for " + oVehicleNumber + " already assigned")
                             } else {
 
                                 oModel.update(`/ZPARKING_SLOTS_SSet('${oslotNumber}')`, newAssignPayload, {
@@ -883,7 +926,7 @@ sap.ui.define([
                 oModel.read("/ZPARKING_RESERVE_SSet", {
                     filters: [oFilters, oFilter2],
                     success: async function (oData, oResponse) {
-                        if (!oData.results) {
+                        if (oData.results.length>0) {
                             MessageBox.information("A slot not available on selected date")
                         } else {
                             oModel.update(`/ZPARKING_RESERVE_SSet('${selectedRecordId}')`, NewReservedRecord, {
@@ -1079,44 +1122,34 @@ sap.ui.define([
                     return;
                 }
 
-                var oreservedSlotBinding = oModel.bindList("/reserved");
+                oModel.read("/ZPARKING_RESERVE_SSet", {
+                    success: function (oData, resp) {
+                        if (oData.results.length > 0) {
+                            MessageBox.information("Hey you have reservation requests")
+                            oData.results.forEach((element) => {
+                                var oReservedDate = element.Reserveddate
+                                if (oReservedDate === currentDay) {
+                                    var oReservedSlot = element.Reservedslot
+                                    const ofilter = new Filter("Slotnumbers", FilterOperator.EQ, oReservedSlot)
+                                    oModel.update(`/ZPARKING_SLOTS_SSet('${oReservedSlot}')`,{Status:"RESERVED"},{
+                                        success:function(){
+                                            
+                                        },
+                                        error:function(){
+                                            MessageBox.show("Failed to update")
+                                        }
+                                    })
+                                }
+                            })
 
-                oreservedSlotBinding.requestContexts().then(function (areservedContexts) {
-                    debugger
-                    if (areservedContexts.length > 0) {
-                        areservedContexts.forEach((element) => {
-                            var oReservedDate = element.getObject().reservedDate
-                            if (oReservedDate === currentDay) {
-                                var oReservedSlot = element.getObject().reservedSlot_ID
-                                // update slot Status
-                                var oreservedSlotBinding = oModel.bindList("/parkingSlots");
-
-                                oreservedSlotBinding.filter([
-                                    new Filter("ID", FilterOperator.EQ, oReservedSlot)
-                                ]);
-
-                                oreservedSlotBinding.requestContexts().then(function (aParkingContexts) {
-                                    if (aParkingContexts.length > 0) {
-                                        var oParkingContext = aParkingContexts[0];
-                                        var oParkingData = oParkingContext.getObject();
-                                        // Update 
-                                        oParkingData.status = "Reserved"
-                                        oParkingContext.setProperty("status", oParkingData.status);
-                                        oModel.submitBatch("updateGroup");
-                                        oThis.getView().byId("idAllSlots").getBinding("items").refresh();
-                                        MessageToast.show("Refresh Successful")
-                                    }
-                                })
-                            }
-                        });
-
-                        this.getView().byId("idAllSlots").getBinding("items").refresh();
-                    } else {
-                        MessageBox.information("No reserved slots found today");
+                        }else{
+                            MessageBox.information("No Reservations found today")
+                        }
+                    },
+                    error: function () {
+                        MessageToast.show("Error while reading reserved records")
                     }
-                }.bind(this)).catch(function (error) {
-                    MessageToast.show("Error while fetching parking slots: " + error.message);
-                });
+                })
             },
             onAssignfromReservations: async function () {
                 debugger
@@ -1371,6 +1404,9 @@ sap.ui.define([
                 }
 
             },
+            onRefresh:function(){
+                this.getView().getModel().refresh(true)
+            },
             onRejectPress: async function () {
                 const oSelected = this.getView().byId("idReservationsTable").getSelectedItem()
 
@@ -1477,16 +1513,16 @@ sap.ui.define([
                         var aChartData = {
                             Items: [
                                 {
-                                    status: `Available-${availableCount}`,
+                                    Status: `Available-${availableCount}`,
                                     Count: availableCount,
                                 },
                                 {
-                                    status: `Not Available-${occupiedCount}`,
+                                    Status: `Not Available-${occupiedCount}`,
                                     Count: occupiedCount,
 
                                 },
                                 {
-                                    status: `Reserved-${reservedCount}`,
+                                    Status: `Reserved-${reservedCount}`,
                                     Count: reservedCount,
 
                                 }
@@ -1746,7 +1782,7 @@ sap.ui.define([
                                                 })
 
                                                 oThis.getView().byId("idHistoryTable").getBinding("items").refresh();
-                                                MessageToast.show("Vechicle " + sVehicle + " Unassigned Successfully");
+                                                MessageToast.show("Vechicle Unassigned Successfully");
 
 
                                             },

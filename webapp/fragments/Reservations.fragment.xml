@@ -17,8 +17,7 @@
                 id="idReservationsTable"
                 inset="false"
                 mode="SingleSelectMaster"
-                items="{/ZPARKING_RESERVE_SSet}"
-                
+                items="{path: '/ZPARKING_RESERVE_SSet',filters: [{path: 'Reservedslot',operator: 'EQ',value1: ''}]}"
             >
                 <headerToolbar>
                     <Toolbar id="idToolBar">
