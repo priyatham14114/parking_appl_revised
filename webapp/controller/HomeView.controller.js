@@ -50,9 +50,31 @@ sap.ui.define([
                 // this._setParkingLotModel();
 
             },
+            // onBellText: function () {
+
+            // },
             onBeforeRendering: function () {
                 debugger
+                this.byId("parkingLotSelect").getBinding("items").sort(new sap.ui.model.Sorter("Slotnumbers"));
                 this.updateSoltsStatusbyDate();
+                // count
+                var count = 0;
+                var oModel = this.getView().getModel();
+                var oThis = this;
+                oModel.read("/ZPARKING_RESERVE_SSet", {
+                    success: function (odata) {
+                        // var otemp = odata.results.length;
+                        odata.results.forEach((obj) => {
+                            if (obj.Reservedslot === "") {
+                                count = count + 1
+                            }
+                        })
+                        oThis.getView().byId("idbadghqwe").setValue(count);
+
+                    }, error: function (oError) {
+
+                    }
+                })
             },
             onEditPress: function () {
                 debugger
@@ -129,12 +151,6 @@ sap.ui.define([
                         MessageToast.show("Error" + error.message)
                     }
                 })
-
-
-
-
-
-
 
                 // var oAssignedSlotBinding = oModel.bindList("/assignedSlots");
 
@@ -228,8 +244,24 @@ sap.ui.define([
 
             },
             onReservationsPress: async function () {
-                const oModel = this.getView().getModel()
-                debugger
+                // count
+                var count = 0;
+                var oModel = this.getView().getModel();
+                var oThis = this;
+                oModel.read("/ZPARKING_RESERVE_SSet", {
+                    success: function (odata) {
+                        // var otemp = odata.results.length;
+                        odata.results.forEach((obj) => {
+                            if (obj.Reservedslot === "") {
+                                count = count + 1
+                            }
+                        })
+                        oThis.getView().byId("idbadghqwe").setValue(count);
+
+                    }, error: function (oError) {
+
+                    }
+                })
                 if (!this.Reservationspopup) {
                     this.Reservationspopup = await this.loadFragment("Reservations")
                 }
@@ -252,7 +284,7 @@ sap.ui.define([
                 // Add filters for search
                 var aFilters = [];
                 var sQuery = oEvent.getSource().getValue();
-            
+
                 if (sQuery && sQuery.length > 0) {
                     // Filters for each field based on the search query
                     var filterVehicle = new Filter("Assignedvehiclenumber", FilterOperator.Contains, sQuery);
@@ -261,34 +293,34 @@ sap.ui.define([
                     var filterMobile = new Filter("Assigneddrivermobile", FilterOperator.Contains, sQuery);
                     var filterDelivery = new Filter("Assigneddeliverytype", FilterOperator.Contains, sQuery);
                     var filterVendor = new Filter("VendorName", FilterOperator.Contains, sQuery);
-            
+
                     // Combine all the above filters with OR condition
                     var searchFilters = new Filter({
                         filters: [filterVehicle, filterSlot, filterName, filterMobile, filterDelivery, filterVendor],
                         and: false
                     });
-            
+
                     // Filter to ensure Assignedvehiclenumber is not empty
                     var vehicleFilter = new Filter("Assignedvehiclenumber", FilterOperator.NE, "");
-            
+
                     // Combine search filters with the vehicle filter (AND condition)
                     var allFilters = new Filter({
                         filters: [searchFilters, vehicleFilter],
                         and: true
                     });
-            
+
                     aFilters.push(allFilters);
                 } else {
                     // If no query, just ensure the vehicle number is not empty
                     aFilters.push(new Filter("Assignedvehiclenumber", FilterOperator.NE, ""));
                 }
-            
+
                 // Update list binding with the combined filters
                 var oList = this.byId("idAssignedTable");
                 var oBinding = oList.getBinding("items");
                 oBinding.filter(aFilters);
             },
-            
+
             // onSearch: function (oEvent) {
             //     debugger
             //     // add filter for search
@@ -318,14 +350,14 @@ sap.ui.define([
                 // var aFilters = [];
                 var sQuery = oEvent.getSource().getValue();
                 if (sQuery && sQuery.length > 0) {
-                    var filterVehicle = new Filter("Vehiclenumber", FilterOperator.Contains, sQuery);
-                    var filterSlot = new Filter("Historyslotnumber", FilterOperator.Contains, sQuery);
-                    var filterName = new Filter("Drivername", FilterOperator.Contains, sQuery);
+                    // var filterVehicle = new Filter("Vehiclenumber", FilterOperator.Contains, sQuery);
+                    // var filterSlot = new Filter("Historyslotnumber", FilterOperator.Contains, sQuery);
+                    var filterName = new Filter("Drivername", FilterOperator.EQ, sQuery);
                     var filterMobile = new Filter("Drivermobile", FilterOperator.Contains, sQuery);
                     var filterDelivery = new Filter("Deliverytype", FilterOperator.Contains, sQuery);
                     var filterVendor = new Filter("VendorName", FilterOperator.Contains, sQuery);
 
-                    var allFilter = new Filter([filterVehicle, filterSlot, filterName, filterMobile, filterDelivery, filterVendor]);
+                    var allFilter = new Filter([filterName, filterMobile, filterDelivery, filterVendor]);
                 }
 
                 // update list binding
@@ -352,11 +384,11 @@ sap.ui.define([
                 var seconds = currentDate.getSeconds();
                 var FinalDate = `${year}-${month}-${day} TIME ${hours}:${minutes}:${seconds}`
                 const oUserView = this.getView(),
-                    oDriverName = oUserView.byId("idDriverName").getValue(),
-                    oDriverMobile = oUserView.byId("idDriverMobile").getValue(),
-                    oVehicleNumber = oUserView.byId("idVehicleNUmber").getValue(),
-                    oVendorName = oUserView.byId("idVendorName___").getValue(),
-                    odeliveryType = oUserView.byId("idTypeOfDelivery").getSelectedKey(),
+                    oDriverName = oUserView.byId("idDriverName").getValue().toUpperCase(),
+                    oDriverMobile = oUserView.byId("idDriverMobile").getValue().toUpperCase(),
+                    oVehicleNumber = oUserView.byId("idVehicleNUmber").getValue().toUpperCase(),
+                    oVendorName = oUserView.byId("idVendorName___").getValue().toUpperCase(),
+                    odeliveryType = oUserView.byId("idTypeOfDelivery").getSelectedKey().toUpperCase(),
                     oslotNumber = oUserView.byId("parkingLotSelect").getSelectedKey(),
                     oCheckInTime = FinalDate
 
@@ -436,7 +468,7 @@ sap.ui.define([
                     oModel.read("/ZPARKING_SLOTS_SSet", {
                         filters: [ofilter],
                         success: async function (oData) {
-                            if (oData.results.length>0) {
+                            if (oData.results.length > 0) {
                                 MessageBox.warning("You can not Assign.A Slot for " + oVehicleNumber + " already assigned")
                             } else {
 
@@ -625,9 +657,8 @@ sap.ui.define([
 
                     oModel.update(`/ZPARKING_SLOTS_SSet('${sSlotNumber}')`, oUpdatedSlotPayload, {
                         success: async function (oData, oResponse) {
-
+                            oModel.refresh(true)
                             // Unassign SMS
-
                             const accountSid = Config.twilio.accountSid;
                             const authToken = Config.twilio.authToken;
 
@@ -921,92 +952,128 @@ sap.ui.define([
 
                 const oFilters = new Filter("Reserveddate", FilterOperator.EQ, oBookedDate)
                 const oFilter2 = new Filter("Reservedslot", FilterOperator.EQ, oReservedSlot)
+                const ofilter3 = new Filter("Status", FilterOperator.NE, "AVAILABLE")
+                const oFilter4 = new Filter("Slotnumbers", FilterOperator.EQ, oReservedSlot)
 
 
-                oModel.read("/ZPARKING_RESERVE_SSet", {
-                    filters: [oFilters, oFilter2],
-                    success: async function (oData, oResponse) {
-                        if (oData.results.length>0) {
-                            MessageBox.information("A slot not available on selected date")
-                        } else {
-                            oModel.update(`/ZPARKING_RESERVE_SSet('${selectedRecordId}')`, NewReservedRecord, {
-                                success: async function (oData, oResponse) {
-
-                                    const accountSid = Config.twilio.accountSid;
-                                    const authToken = Config.twilio.authToken;
-
-                                    // debugger
-                                    const toNumber = `+91${oDriverMobile}` // Replace with recipient's phone number
-                                    const fromNumber = '+15856485867'; // Replace with your Twilio phone number
-                                    const messageBody = `Hi ${oDriverName} a Slot number ${sSlotNumber} is reserved on your vehicle number ${oVehicleNumber} \nVendor name: ${oVendorName}. \nThank You,\nVishal Parking Management`; // Message content
-
-                                    // Twilio API endpoint for sending messages
-                                    const APIendpoint = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
-
-
-                                    // Send POST request to Twilio API using jQuery.ajax
-                                    $.ajax({
-                                        url: APIendpoint,
-                                        type: 'POST',
-                                        headers: {
-                                            'Authorization': 'Basic ' + btoa(accountSid + ':' + authToken)
-                                        },
-                                        data: {
-                                            To: toNumber,
-                                            From: fromNumber,
-                                            Body: messageBody
-                                        },
-                                        success: function (data) {
-                                            // console.log('SMS sent successfully:', data);
-                                            MessageToast.show('SMS sent successfully!');
-                                        },
-                                        error: function (error) {
-                                            // console.error('Error sending SMS:', error);
-                                            MessageToast.show('Failed to send SMS: ' + error);
-                                        }
-                                    });
-
-                                    // SMS END
-                                    // var oSelected = oThis.byId("idReservationsTable").getSelectedItem();
-
-                                    oThis.byId("_IDGendfgdInput1").setValue("")
-                                    oThis.byId("_IDGexgrgnInput2").setValue("")
-                                    oThis.byId("idasgredhmeInput").setValue("")
-                                    //  this.byId("_IDGewertnSelect1").setValue(oDeliveryType)
-                                    oThis.byId("idasgredhmeIn0075put").setValue("")
-                                    oThis.confirmDialog.close()
-
-
-                                    // update the slot acc to date 
-
-                                    const filter = new Filter("Slotnumbers", FilterOperator.EQ, oReservedSlot)
-                                    oModel.read("/ZPARKING_SLOTS_SSet", {
-                                        filters: [filter],
-                                        success: function (oData, resp) {
-                                            if (oBookedDate === currentDay) {
-                                                oModel.update(`/ZPARKING_SLOTS_SSet('${oReservedSlot}')`, { Status: "RESERVED" })
-
-                                            }
-
-                                        },
-                                        error: function (err) {
-                                            MessageToast.show("Failed to read slots")
-                                        }
-                                    })
-
-                                },
-                                error: async function (err) {
-                                    MessageToast.show("Failed to read slots")
-                                }
-                            })
+                if (oBookedDate === currentDay) {
+                    oModel.read("/ZPARKING_SLOTS_SSet", {
+                        filters: [oFilter4, ofilter3],
+                        success: function (oData) {
+                            if (oData.results.length > 0) {
+                                MessageBox.information("Selected slot not available Today")
+                            }
+                        },
+                        error: function () {
 
                         }
-                    },
-                    error: async function (err) {
-                        MessageToast.show("Failed to read slots")
+                    })
+                }else{
+                    
+                    oModel.read("/ZPARKING_RESERVE_SSet", {
+                        filters: [oFilters, oFilter2],
+                        success: async function (oData, oResponse) {
+                            if (oData.results.length > 0) {
+                                MessageBox.information("A slot not available on selected date")
+                            } else {
+                                oModel.update(`/ZPARKING_RESERVE_SSet('${selectedRecordId}')`, NewReservedRecord, {
+                                    success: async function (oData, oResponse) {
 
-                    }
-                })
+                                        // count
+                                        var count = 0;
+                                        var oModel = oThis.getView().getModel();
+                                        oModel.read("/ZPARKING_RESERVE_SSet", {
+                                            success: function (odata) {
+                                                // var otemp = odata.results.length;
+                                                odata.results.forEach((obj) => {
+                                                    if (obj.Reservedslot === "") {
+                                                        count = count + 1
+                                                    }
+                                                })
+                                                oThis.getView().byId("idbadghqwe").setValue(count);
+
+                                            }, error: function (oError) {
+
+                                            }
+                                        })
+
+                                        const accountSid = Config.twilio.accountSid;
+                                        const authToken = Config.twilio.authToken;
+
+                                        // debugger
+                                        const toNumber = `+91${oDriverMobile}` // Replace with recipient's phone number
+                                        const fromNumber = '+15856485867'; // Replace with your Twilio phone number
+                                        const messageBody = `Hi ${oDriverName} a Slot number ${sSlotNumber} is reserved on your vehicle number ${oVehicleNumber} \nVendor name: ${oVendorName}. \nThank You,\nVishal Parking Management`; // Message content
+
+                                        // Twilio API endpoint for sending messages
+                                        const APIendpoint = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
+
+
+                                        // Send POST request to Twilio API using jQuery.ajax
+                                        $.ajax({
+                                            url: APIendpoint,
+                                            type: 'POST',
+                                            headers: {
+                                                'Authorization': 'Basic ' + btoa(accountSid + ':' + authToken)
+                                            },
+                                            data: {
+                                                To: toNumber,
+                                                From: fromNumber,
+                                                Body: messageBody
+                                            },
+                                            success: function (data) {
+                                                // console.log('SMS sent successfully:', data);
+                                                MessageToast.show('SMS sent successfully!');
+                                            },
+                                            error: function (error) {
+                                                // console.error('Error sending SMS:', error);
+                                                MessageToast.show('Failed to send SMS: ' + error);
+                                            }
+                                        });
+
+                                        // SMS END
+                                        // var oSelected = oThis.byId("idReservationsTable").getSelectedItem();
+
+                                        oThis.byId("_IDGendfgdInput1").setValue("")
+                                        oThis.byId("_IDGexgrgnInput2").setValue("")
+                                        oThis.byId("idasgredhmeInput").setValue("")
+                                        //  this.byId("_IDGewertnSelect1").setValue(oDeliveryType)
+                                        oThis.byId("idasgredhmeIn0075put").setValue("")
+                                        oThis.confirmDialog.close()
+
+
+                                        // update the slot acc to date 
+
+                                        const filter = new Filter("Slotnumbers", FilterOperator.EQ, oReservedSlot)
+                                        oModel.read("/ZPARKING_SLOTS_SSet", {
+                                            filters: [filter],
+                                            success: function (oData, resp) {
+                                                if (oBookedDate === currentDay) {
+                                                    oModel.update(`/ZPARKING_SLOTS_SSet('${oReservedSlot}')`, { Status: "RESERVED" })
+
+                                                }
+
+                                            },
+                                            error: function (err) {
+                                                MessageToast.show("Failed to read slots")
+                                            }
+                                        })
+
+                                    },
+                                    error: async function (err) {
+                                        MessageToast.show("Failed to read slots")
+                                    }
+                                })
+
+                            }
+                        },
+                        error: async function (err) {
+                            MessageToast.show("Failed to read slots")
+
+                        }
+                    })
+                }
+
             },
             onDeleteReservedPressToConfirm: async function () {
                 const oSelected = this.getView().byId("idReservedTable__").getSelectedItem()
@@ -1048,7 +1115,7 @@ sap.ui.define([
                     success: function () {
 
                         MessageBox.information("Rejected and SMS will be sent")
-                        oThis.ConfirmDeleteDialog.close()
+                        // oThis.ConfirmDeleteDialog.close()
                         // Unassign SMS
 
                         const accountSid = Config.twilio.accountSid;
@@ -1131,18 +1198,18 @@ sap.ui.define([
                                 if (oReservedDate === currentDay) {
                                     var oReservedSlot = element.Reservedslot
                                     const ofilter = new Filter("Slotnumbers", FilterOperator.EQ, oReservedSlot)
-                                    oModel.update(`/ZPARKING_SLOTS_SSet('${oReservedSlot}')`,{Status:"RESERVED"},{
-                                        success:function(){
-                                            
+                                    oModel.update(`/ZPARKING_SLOTS_SSet('${oReservedSlot}')`, { Status: "RESERVED" }, {
+                                        success: function () {
+
                                         },
-                                        error:function(){
+                                        error: function () {
                                             MessageBox.show("Failed to update")
                                         }
                                     })
                                 }
                             })
 
-                        }else{
+                        } else {
                             MessageBox.information("No Reservations found today")
                         }
                     },
@@ -1404,7 +1471,7 @@ sap.ui.define([
                 }
 
             },
-            onRefresh:function(){
+            onRefresh: function () {
                 this.getView().getModel().refresh(true)
             },
             onRejectPress: async function () {

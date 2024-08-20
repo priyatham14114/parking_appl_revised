@@ -23,6 +23,7 @@
             class="close"
             press="oncloseDataonDataAnalysis"
         />
+        <!-- Pie chart Start -->
         <suite:ChartContainer id="chartContainer">
             <suite:content>
                 <suite:ChartContainerContent id="chartContainerContent">
@@ -82,8 +83,9 @@
                 </suite:ChartContainerContent>
             </suite:content>
         </suite:ChartContainer>
+        <!-- Pie chart end -->
 
-        <!-- Bars -->
+        <!-- Bars start -->
         <suite:ChartContainer id="chartContainer123">
             <suite:content>
                 <suite:ChartContainerContent id="chartContainerContent333">
@@ -185,5 +187,6 @@
                 </suite:ChartContainerContent>
             </suite:content>
         </suite:ChartContainer>
+        <!-- Bars end -->
     </Dialog>
 </core:FragmentDefinition>

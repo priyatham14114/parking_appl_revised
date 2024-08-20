@@ -263,7 +263,7 @@
                         <m:customData>
                             <m:BadgeCustomData
                                 id="idbadghqwe"
-                                value="{/ZPARKING_RESERVE_SSet/$count}"
+                                value=""
                                 visible="true"
                                 animation="Update"
                             />
@@ -303,7 +303,7 @@
                         <blocks>
                             <m:Table
                                 id="idAssignedTable"
-                                mode="MultiSelect"
+                                mode="SingleSelectMaster"
                                 items="{path: '/ZPARKING_SLOTS_SSet', filters: [{path: 'Status', operator: 'EQ', value1: 'NOT AVAILABLE'}]}"
                                 class="Table"
                             >
@@ -430,7 +430,6 @@
                                 <m:items>
                                     <m:ColumnListItem
                                         id="idBooksTableColListItem"
-                                        type="Navigation"
                                         class="TableContent"
                                     >
                                         <m:cells>
@@ -515,7 +514,7 @@
                         <blocks>
                             <m:Table
                                 id="idAllSlots"
-                                mode="MultiSelect"
+                                mode="SingleSelectMaster"
                                 items="{/ZPARKING_SLOTS_SSet}"
                             >
                                 <m:headerToolbar>
@@ -566,7 +565,6 @@
                                 <m:items>
                                     <m:ColumnListItem
                                         id="_IDGenColumnListItem1"
-                                        type="Navigation"
                                         class="TableContent"
                                     >
                                         <m:cells>
@@ -603,7 +601,7 @@
                         <blocks>
                             <m:Table
                                 id="idReservedTable__"
-                                mode="MultiSelect"
+                                mode="SingleSelectMaster"
                                 alternateRowColors="true"
                                 items="{path: '/ZPARKING_RESERVE_SSet',filters: [{path: 'Reservedslot',operator: 'NE',value1: ''}]}"
                             >
@@ -632,7 +630,7 @@
                                             text="Delete"
                                             type="Unstyled"
                                             class="buttonRed"
-                                            press="onDeleteReservedPressToCoitenfirm"
+                                            press="onDeleteReservedPress"
                                         />
                                         <m:Button
                                             id="_IDGenButton2"
@@ -698,7 +696,6 @@
                                 <m:items>
                                     <m:ColumnListItem
                                         id="_IDGenColumnListItem2"
-                                        type="Navigation"
                                         class="TableContent"
                                     >
                                         <m:cells>
@@ -766,6 +763,8 @@
                                 id="idHistoryTable"
                                 items="{/ZPARKING_HISTORYSet}"
                                 mode="None"
+                                growing="true"
+                                growingThreshold="15"
                             >
                                 <m:headerToolbar>
                                     <m:OverflowToolbar
@@ -846,7 +845,6 @@
                                 <m:items>
                                     <m:ColumnListItem
                                         id="_IDGenColumnListItem3"
-                                        type="Navigation"
                                         class="TableContent"
                                     >
                                         <m:cells>
