@@ -528,6 +528,33 @@
                                         <m:ToolbarSpacer
                                             id="_IDGenToolbarSpacer1"
                                         />
+                                        <m:Select id="idTypeOfDewelivery"  change="onSortChange">
+                                            <core:Item
+                                                id="_IDGenWDI23esaweftem234"
+                                                key="Sort by Status"
+                                                text="Sort by Status"
+                                            />
+                                            <core:Item
+                                                id="_IDGenWDI2erh3esaweftem234"
+                                                key="All"
+                                                text="All"
+                                            />
+                                            <core:Item
+                                                id="_IDGenI23esaweftem234"
+                                                key="AVAILABLE"
+                                                text="AVAILABLE"
+                                            />
+                                            <core:Item
+                                                id="_IDGenItem2wecf34"
+                                                key="NOT AVAILABLE"
+                                                text="NOT AVAILABLE"
+                                            />
+                                            <core:Item
+                                                id="_IDGenItesdvm2344"
+                                                key="RESERVED"
+                                                text="RESERVED"
+                                            />
+                                        </m:Select>
                                         <m:Button
                                             id="_IDGenButton1"
                                             icon="sap-icon://refresh"
