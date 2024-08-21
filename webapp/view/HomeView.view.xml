@@ -630,7 +630,7 @@
                                             text="Delete"
                                             type="Unstyled"
                                             class="buttonRed"
-                                            press="onDeleteReservedPress"
+                                            press="onDeleteReservedPressToConfirm"
                                         />
                                         <m:Button
                                             id="_IDGenButton2"
