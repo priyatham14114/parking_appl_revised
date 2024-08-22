@@ -528,12 +528,7 @@
                                         <m:ToolbarSpacer
                                             id="_IDGenToolbarSpacer1"
                                         />
-                                        <m:Select id="idTypeOfDewelivery"  change="onSortChange">
-                                            <core:Item
-                                                id="_IDGenWDI23esaweftem234"
-                                                key="Sort by Status"
-                                                text="Sort by Status"
-                                            />
+                                        <m:Select id="idTypeOfDewelivery" name="Sort by Status" change="onSortChange">
                                             <core:Item
                                                 id="_IDGenWDI2erh3esaweftem234"
                                                 key="All"

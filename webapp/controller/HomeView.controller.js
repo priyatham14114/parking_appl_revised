@@ -409,9 +409,9 @@ sap.ui.define([
                 }
                 var oModel = this.getView().getModel()
                 var bValid = true;
-                if (!oDriverName || oDriverName.length < 3) {
+                if (!oDriverName || oDriverName.length < 3 || !/^[a-zA-Z]+$/.test(oDriverName)) {
                     oUserView.byId("idDriverName").setValueState("Error");
-                    oUserView.byId("idDriverName").setValueStateText("Name Must Contain 3 Characters");
+                    oUserView.byId("idDriverName").setValueStateText("Name Must Contain 3 Characters A-Z or a-z");
                     bValid = false;
                 } else {
                     oUserView.byId("idDriverName").setValueState("None");
@@ -446,9 +446,9 @@ sap.ui.define([
                 } else {
                     oUserView.byId("parkingLotSelect").setValueState("None");
                 }
-                if (!oVendorName || oVendorName.length < 3) {
+                if (!oVendorName || oVendorName.length < 3 || !/^[a-zA-Z]+$/.test(oVendorName)) {
                     oUserView.byId("idVendorName___").setValueState("Error");
-                    oUserView.byId("idVendorName___").setValueStateText("Vendor Name Must Contain 3 Characters");
+                    oUserView.byId("idVendorName___").setValueStateText("Vendor Name Must Contain 3 Characters A-Z or a-z");
                     bValid = false;
                 } else {
                     oUserView.byId("idVendorName___").setValueState("None");
@@ -904,9 +904,9 @@ sap.ui.define([
                     oUserView = this.getView()
 
                 var bValid = true;
-                if (!oDriverName || oDriverName.length < 3) {
+                if (!oDriverName || oDriverName.length < 3 || !/^[a-zA-Z]+$/.test(oDriverName)) {
                     oUserView.byId("_IDGendfgdInput1").setValueState("Error");
-                    oUserView.byId("_IDGendfgdInput1").setValueStateText("Name Must Contain 3 Characters");
+                    oUserView.byId("_IDGendfgdInput1").setValueStateText("Name Must Contain 3 Characters A-Z or a-z");
                     bValid = false;
                 } else {
                     oUserView.byId("_IDGendfgdInput1").setValueState("None");
@@ -927,9 +927,9 @@ sap.ui.define([
                 } else {
                     oUserView.byId("idasgredhmeInput").setValueState("None");
                 }
-                if (!oVendorName || oVendorName.length < 3) {
+                if (!oVendorName || oVendorName.length < 3 || !/^[a-zA-Z]+$/.test(oVendorName)) {
                     oUserView.byId("idasgredhmeIn0075put").setValueState("Error");
-                    oUserView.byId("idasgredhmeIn0075put").setValueStateText("Vendor Name Must Contain 3 Characters");
+                    oUserView.byId("idasgredhmeIn0075put").setValueStateText("Vendor Name Must Contain 3 Characters A-Z or a-z");
                     bValid = false;
                 } else {
                     oUserView.byId("idasgredhmeIn0075put").setValueState("None");
@@ -1056,7 +1056,7 @@ sap.ui.define([
 
                         }
                     })
-                }else {
+                } else {
 
                     oModel.read("/ZPARKING_RESERVE_SSet", {
                         filters: [oFilters, oFilter2],
@@ -1326,7 +1326,7 @@ sap.ui.define([
                     this.getView().byId("idss__n0075put").setValue(oVendorName)
                     this.getView().byId("_dhmeI__nput").setValue(oSlot)
 
-                }else{
+                } else {
                     MessageToast.show("Please select a record")
                 }
 
@@ -1383,9 +1383,9 @@ sap.ui.define([
                 //     MessageToast.show("Please Enter All Required Fields")
                 // } 
                 var bValid = true;
-                if (!oDriverName || oDriverName.length < 3) {
+                if (!oDriverName || oDriverName.length < 3 || !/^[a-zA-Z]+$/.test(oDriverName)) {
                     oUserView.byId("_IDGen__dfgdInput1").setValueState("Error");
-                    oUserView.byId("_IDGen__dfgdInput1").setValueStateText("Name Must Contain 3 Characters");
+                    oUserView.byId("_IDGen__dfgdInput1").setValueStateText("Name Must Contain 3 Characters (A-Z or a-z)");
                     bValid = false;
                 } else {
                     oUserView.byId("_IDGen__dfgdInput1").setValueState("None");
@@ -1406,9 +1406,9 @@ sap.ui.define([
                 } else {
                     oUserView.byId("afidasgredhmeI__nput").setValueState("None");
                 }
-                if (!oVendorName || oVendorName.length < 3) {
+                if (!oVendorName || oVendorName.length < 3 || !/^[a-zA-Z]+$/.test(oVendorName)) {
                     oUserView.byId("idss__n0075put").setValueState("Error");
-                    oUserView.byId("idss__n0075put").setValueStateText("Vendor Name Must Contain 3 Characters");
+                    oUserView.byId("idss__n0075put").setValueStateText("Vendor Name Must Contain 3 Characters (A-Z or a-z)");
                     bValid = false;
                 } else {
                     oUserView.byId("idss__n0075put").setValueState("None");
@@ -1435,128 +1435,146 @@ sap.ui.define([
 
                 }
                 else {
+
                     if (oBookedDate === currentDate) {
-                        // newAssignSuccess = oBindList.create(newAssign);
-                        oModel.update(`/ZPARKING_SLOTS_SSet('${oslotNumber}')`, newAssignPayload, {
-                            success: async function (oData, oResponse) {
 
-                                const accountSid = Config.twilio.accountSid;
-                                const authToken = Config.twilio.authToken;
+                        const oVehicleFilter = new Filter("Assignedvehiclenumber", FilterOperator.EQ, oVehicleNumber)
+                        oModel.read("/ZPARKING_SLOTS_SSet", {
+                            filters: [oVehicleFilter],
+                            success: function (oData, resp) {
+                                if (oData.results.length === 0) {
 
-                                // debugger
-                                const toNumber = `+91${oDriverMobile}`
-                                const fromNumber = '+15856485867';
-                                const messageBody = `Hi ${oDriverName} a Slot number ${oslotNumber} is alloted to you vehicle number ${oVehicleNumber} \nVendor name: ${oVendorName}. \nThank You,\nVishal Parking Management.`; // Message content
+                                    oModel.update(`/ZPARKING_SLOTS_SSet('${oslotNumber}')`, newAssignPayload, {
+                                        success: async function (oData, oResponse) {
 
-                                // Twilio API endpoint for sending messages
-                                const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
+                                            oModel.refresh(true)
+
+                                            const accountSid = Config.twilio.accountSid;
+                                            const authToken = Config.twilio.authToken;
+
+                                            // debugger
+                                            const toNumber = `+91${oDriverMobile}`
+                                            const fromNumber = '+15856485867';
+                                            const messageBody = `Hi ${oDriverName} a Slot number ${oslotNumber} is alloted to you vehicle number ${oVehicleNumber} \nVendor name: ${oVendorName}. \nThank You,\nVishal Parking Management.`; // Message content
+
+                                            // Twilio API endpoint for sending messages
+                                            const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
 
 
-                                // Send POST request to Twilio API using jQuery.ajax
-                                $.ajax({
-                                    url: url,
-                                    type: 'POST',
-                                    async: true,
-                                    headers: {
-                                        'Authorization': 'Basic ' + btoa(accountSid + ':' + authToken)
-                                    },
-                                    data: {
-                                        To: toNumber,
-                                        From: fromNumber,
-                                        Body: messageBody
-                                    },
-                                    success: function (data) {
-                                        // console.log('SMS sent successfully:', data);
-                                        // Handle success, e.g., show a success message
-                                        MessageToast.show('if number exists SMS will be sent!');
-                                    },
-                                    error: function (error) {
-                                        // console.error('Error sending SMS:', error);
-                                        // Handle error, e.g., show an error message
-                                        MessageToast.show('Failed to send SMS');
-                                    }
-                                });
+                                            // Send POST request to Twilio API using jQuery.ajax
+                                            $.ajax({
+                                                url: url,
+                                                type: 'POST',
+                                                async: true,
+                                                headers: {
+                                                    'Authorization': 'Basic ' + btoa(accountSid + ':' + authToken)
+                                                },
+                                                data: {
+                                                    To: toNumber,
+                                                    From: fromNumber,
+                                                    Body: messageBody
+                                                },
+                                                success: function (data) {
+                                                    // console.log('SMS sent successfully:', data);
+                                                    // Handle success, e.g., show a success message
+                                                    MessageToast.show('if number exists SMS will be sent!');
+                                                },
+                                                error: function (error) {
+                                                    // console.error('Error sending SMS:', error);
+                                                    // Handle error, e.g., show an error message
+                                                    MessageToast.show('Failed to send SMS');
+                                                }
+                                            });
 
-                                // SMS END
+                                            // SMS END
 
-                                // Function to make an announcement
-                                function makeAnnouncement(message, lang = 'en-US') {
-                                    // Check if the browser supports the Web Speech API
-                                    if ('speechSynthesis' in window) {
-                                        // Create a new instance of SpeechSynthesisUtterance
-                                        var utterance = new SpeechSynthesisUtterance(message);
+                                            // Function to make an announcement
+                                            function makeAnnouncement(message, lang = 'en-US') {
+                                                // Check if the browser supports the Web Speech API
+                                                if ('speechSynthesis' in window) {
+                                                    // Create a new instance of SpeechSynthesisUtterance
+                                                    var utterance = new SpeechSynthesisUtterance(message);
 
-                                        // Set properties (optional)
-                                        utterance.pitch = 1; // Range between 0 (lowest) and 2 (highest)
-                                        utterance.rate = 0.75;  // Range between 0.1 (lowest) and 10 (highest)
-                                        utterance.volume = 1; // Range between 0 (lowest) and 1 (highest)
-                                        utterance.lang = lang; // Set the language
+                                                    // Set properties (optional)
+                                                    utterance.pitch = 1; // Range between 0 (lowest) and 2 (highest)
+                                                    utterance.rate = 0.75;  // Range between 0.1 (lowest) and 10 (highest)
+                                                    utterance.volume = 1; // Range between 0 (lowest) and 1 (highest)
+                                                    utterance.lang = lang; // Set the language
 
-                                        // Speak the utterance
-                                        debugger
-                                        window.speechSynthesis.speak(utterance);
-                                    } else {
-                                        console.log('Sorry, your browser does not support the Web Speech API.');
-                                    }
+                                                    // Speak the utterance
+                                                    debugger
+                                                    window.speechSynthesis.speak(utterance);
+                                                } else {
+                                                    console.log('Sorry, your browser does not support the Web Speech API.');
+                                                }
+                                            }
+
+                                            // Example usage
+                                            makeAnnouncement(`कृपया ध्यान दें। वाहन नंबर ${oVehicleNumber} को स्लॉट नंबर ${oslotNumber} द्वारा आवंटित किया गया है।`, 'hi-IN');
+                                            // makeAnnouncement(`దయచేసి వినండి. వాహనం నంబర్ ${oVehicleNumber} కు స్లాట్ నంబర్ ${sSlotNumber} కేటాయించబడింది.`, 'te-IN');
+
+                                            // Lorry Animation
+                                            var oImage = oThis.byId("movingImage");
+                                            oImage.setVisible(true);
+                                            oImage.addStyleClass("animate");
+                                            setTimeout(function () {
+                                                oImage.setVisible(false);
+                                            }, 7000);
+
+
+                                            // open receipt    
+                                            // test
+                                            if (!oThis.ReceiptDailog) {
+                                                oThis.ReceiptDailog = await oThis.loadFragment("Receipt")
+                                            }
+                                            oThis.ReceiptDailog.open();
+                                            // barcode generations with value
+                                            var obj = oslotNumber
+                                            oThis._generateBarcode(obj)
+                                            oThis.byId("textprint1").setText(oVehicleNumber)
+                                            oThis.byId("textprint5").setText(oslotNumber)
+                                            oThis.byId("textprint2").setText(oDriverName)
+                                            oThis.byId("textprint3").setText(oDriverMobile)
+                                            oThis.byId("textprint4").setText(odeliveryType)
+                                            oThis.byId("dfvtextprint1").setText(`Date: ${year}-${month}-${day} \nTIME: ${hours}:${minutes}:${seconds}`)
+
+
+                                            oModel.remove(`/ZPARKING_RESERVE_SSet('${sUuid}')`, {
+                                                success: function (oData, resp) {
+
+                                                    MessageToast.show("allotment successful")
+                                                    oThis.getView().byId("_IDGen__dfgdInput1").setValue("");
+                                                    oThis.getView().byId("_IDGexgrsdfgnIn__put2").setValue("");
+                                                    oThis.getView().byId("afidasgredhmeI__nput").setValue("");
+                                                    oThis.getView().byId("_dhmeI__nput").setValue("");
+                                                    oThis.getView().byId("idss__n0075put").setValue("");
+                                                    oThis.ConfirmAssignDialog.close()
+
+
+                                                },
+                                                error: function () {
+                                                    MessageBox.show("Assigned successfully but failed to remove from reservations")
+                                                },
+                                            })
+                                        },
+                                        error: async function (err) {
+                                            MessageBox.show("Error while assigning the slot")
+                                        }
+                                    })
+
+
+                                } else {
+                                    MessageBox.information("Vehicle already there in the yard")
                                 }
-
-                                // Example usage
-                                makeAnnouncement(`कृपया ध्यान दें। वाहन नंबर ${oVehicleNumber} को स्लॉट नंबर ${oslotNumber} द्वारा आवंटित किया गया है।`, 'hi-IN');
-                                // makeAnnouncement(`దయచేసి వినండి. వాహనం నంబర్ ${oVehicleNumber} కు స్లాట్ నంబర్ ${sSlotNumber} కేటాయించబడింది.`, 'te-IN');
-
-                                // Lorry Animation
-                                var oImage = oThis.byId("movingImage");
-                                oImage.setVisible(true);
-                                oImage.addStyleClass("animate");
-                                setTimeout(function () {
-                                    oImage.setVisible(false);
-                                }, 7000);
-
-
-                                // open receipt    
-                                // test
-                                if (!oThis.ReceiptDailog) {
-                                    oThis.ReceiptDailog = await oThis.loadFragment("Receipt")
-                                }
-                                oThis.ReceiptDailog.open();
-                                // barcode generations with value
-                                var obj = oslotNumber
-                                oThis._generateBarcode(obj)
-                                oThis.byId("textprint1").setText(oVehicleNumber)
-                                oThis.byId("textprint5").setText(oslotNumber)
-                                oThis.byId("textprint2").setText(oDriverName)
-                                oThis.byId("textprint3").setText(oDriverMobile)
-                                oThis.byId("textprint4").setText(odeliveryType)
-                                oThis.byId("dfvtextprint1").setText(`Date: ${year}-${month}-${day} \nTIME: ${hours}:${minutes}:${seconds}`)
-
-
-                                oModel.remove(`/ZPARKING_RESERVE_SSet('${sUuid}')`, {
-                                    success: function (oData, resp) {
-
-                                        MessageToast.show("allotment successful")
-                                        oThis.getView().byId("_IDGen__dfgdInput1").setValue("");
-                                        oThis.getView().byId("_IDGexgrsdfgnIn__put2").setValue("");
-                                        oThis.getView().byId("afidasgredhmeI__nput").setValue("");
-                                        oThis.getView().byId("_dhmeI__nput").setValue("");
-                                        oThis.getView().byId("idss__n0075put").setValue("");
-                                        oThis.ConfirmAssignDialog.close()
-
-
-                                    },
-                                    error: function () {
-                                        MessageBox.show("Assigned successfully but failed to remove from reservations")
-                                    },
-                                })
                             },
-                            error: async function (err) {
-                                MessageBox.show("Error while assigning the slot")
+                            error: function (oData, resp) {
                             }
                         })
-
 
                     } else {
                         MessageBox.information("You can assign current date reservations only");
                     }
+
                 }
 
             },
@@ -1881,7 +1899,7 @@ sap.ui.define([
                             oModel.read("/ZPARKING_SLOTS_SSet", {
                                 filters: [ofilter],
                                 success: function (oData) {
-                                    if (oData.results) {
+                                    if (oData.results.length > 0 && oData.results[0].Assignedvehiclenumber !== "") {
 
                                         // UUID generation
                                         function generateUUID() {
@@ -1896,14 +1914,14 @@ sap.ui.define([
 
                                         const oNewHistoryPayload = {
                                             Uuid: NewUuid,
-                                            Drivername: "qwerty",
-                                            Drivermobile: "9876543213",
-                                            Vehiclenumber: "AA11AA1111",
-                                            Deliverytype: "INBOUND",
-                                            Checkintime: "TEST1",
-                                            Historyslotnumber: "POO1",
-                                            VendorName: "TEST1",
-                                            Checkouttime: "TEST1"
+                                            Drivername: oData.results[0].Assigneddrivername,
+                                            Drivermobile: oData.results[0].Assigneddrivermobile,
+                                            Vehiclenumber: oData.results[0].Assignedvehiclenumber,
+                                            Deliverytype: oData.results[0].Assigneddeliverytype,
+                                            Checkintime: oData.results[0].Assignedcheckintime,
+                                            Historyslotnumber: oData.results[0].Slotnumbers,
+                                            VendorName: oData.results[0].VendorName,
+                                            Checkouttime: oCheckOutTime
                                         }
 
                                         const oUpdatedSlotPayload = {
@@ -1915,7 +1933,7 @@ sap.ui.define([
                                             VendorName: "",
                                             Assignedcheckintime: ""
                                         }
-
+                                        // if (oData.results[0].Vehiclenumber !== "") {
                                         oModel.update(`/ZPARKING_SLOTS_SSet('${scannedText}')`, oUpdatedSlotPayload, {
                                             success: async function (oData, oResponse) {
 
@@ -1945,9 +1963,12 @@ sap.ui.define([
                                             error: function (err) {
                                             }
                                         })
+                                        // } else {
+                                        //     MessageBox.information("Vehicle not found")
+                                        // }
 
                                     } else {
-                                        MessageToast.show("No records found")
+                                        MessageToast.show("Vehicle not found")
                                     }
                                 },
                                 error: function (err) {
@@ -2102,7 +2123,7 @@ sap.ui.define([
                 // Filter the data based on the query
                 var aFilteredItems = aItems.filter(function (oItem) {
                     return (oItem.Drivername && oItem.Drivername.includes(sQuery)) ||
-                    (oItem.Drivermobile && oItem.Drivermobile.includes(sQuery)) ||
+                        (oItem.Drivermobile && oItem.Drivermobile.includes(sQuery)) ||
                         (oItem.Deliverytype && oItem.Deliverytype.includes(sQuery)) ||
                         (oItem.VendorName && oItem.VendorName.includes(sQuery)) ||
                         (oItem.Vehiclenumber && oItem.Vehiclenumber.includes(sQuery)) ||
@@ -2202,16 +2223,16 @@ sap.ui.define([
             },
             onSortChange: function (oEvent) {
                 var sSelectedKey = oEvent.getParameter("selectedItem").getKey();
-         
+
                 var oTable = this.byId("idAllSlots");
                 var oBinding = oTable.getBinding("items");
-         
+
                 var aFilters = [];
                 if (sSelectedKey === "AVAILABLE" || sSelectedKey === "NOT AVAILABLE" || sSelectedKey === "RESERVED") {
-                  aFilters.push(new sap.ui.model.Filter("Status", sap.ui.model.FilterOperator.EQ, sSelectedKey));
-                }          
+                    aFilters.push(new sap.ui.model.Filter("Status", sap.ui.model.FilterOperator.EQ, sSelectedKey));
+                }
                 oBinding.filter(aFilters);
-              }
+            }
 
 
         })
