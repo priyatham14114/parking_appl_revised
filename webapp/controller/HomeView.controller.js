@@ -409,7 +409,7 @@ sap.ui.define([
                 }
                 var oModel = this.getView().getModel()
                 var bValid = true;
-                if (!oDriverName || oDriverName.length < 3 || !/^[a-zA-Z]+$/.test(oDriverName)) {
+                if (!oDriverName || oDriverName.length < 3 || !/^[a-zA-Z\s]+$/.test(oDriverName)) {
                     oUserView.byId("idDriverName").setValueState("Error");
                     oUserView.byId("idDriverName").setValueStateText("Name Must Contain 3 Characters A-Z or a-z");
                     bValid = false;
@@ -446,7 +446,7 @@ sap.ui.define([
                 } else {
                     oUserView.byId("parkingLotSelect").setValueState("None");
                 }
-                if (!oVendorName || oVendorName.length < 3 || !/^[a-zA-Z]+$/.test(oVendorName)) {
+                if (!oVendorName || oVendorName.length < 3 || !/^[a-zA-Z\s]+$/.test(oVendorName)) {
                     oUserView.byId("idVendorName___").setValueState("Error");
                     oUserView.byId("idVendorName___").setValueStateText("Vendor Name Must Contain 3 Characters A-Z or a-z");
                     bValid = false;
@@ -904,7 +904,7 @@ sap.ui.define([
                     oUserView = this.getView()
 
                 var bValid = true;
-                if (!oDriverName || oDriverName.length < 3 || !/^[a-zA-Z]+$/.test(oDriverName)) {
+                if (!oDriverName || oDriverName.length < 3 || !/^[a-zA-Z\s]+$/.test(oDriverName)) {
                     oUserView.byId("_IDGendfgdInput1").setValueState("Error");
                     oUserView.byId("_IDGendfgdInput1").setValueStateText("Name Must Contain 3 Characters A-Z or a-z");
                     bValid = false;
@@ -927,7 +927,7 @@ sap.ui.define([
                 } else {
                     oUserView.byId("idasgredhmeInput").setValueState("None");
                 }
-                if (!oVendorName || oVendorName.length < 3 || !/^[a-zA-Z]+$/.test(oVendorName)) {
+                if (!oVendorName || oVendorName.length < 3 || !/^[a-zA-Z\s]+$/.test(oVendorName)) {
                     oUserView.byId("idasgredhmeIn0075put").setValueState("Error");
                     oUserView.byId("idasgredhmeIn0075put").setValueStateText("Vendor Name Must Contain 3 Characters A-Z or a-z");
                     bValid = false;
@@ -1357,10 +1357,10 @@ sap.ui.define([
                 var currentDate = `${year}-${month}-${day}`
 
                 const oUserView = this.getView(),
-                    oDriverName = oUserView.byId("_IDGen__dfgdInput1").getValue(),
+                    oDriverName = oUserView.byId("_IDGen__dfgdInput1").getValue().toUpperCase(),
                     oDriverMobile = oUserView.byId("_IDGexgrsdfgnIn__put2").getValue(),
-                    oVehicleNumber = oUserView.byId("afidasgredhmeI__nput").getValue(),
-                    oVendorName = oUserView.byId("idss__n0075put").getValue(),
+                    oVehicleNumber = oUserView.byId("afidasgredhmeI__nput").getValue().toUpperCase(),
+                    oVendorName = oUserView.byId("idss__n0075put").getValue().toUpperCase(),
                     odeliveryType = oUserView.byId("_IDGewertnSelect1").getSelectedKey().toUpperCase(),
                     oslotNumber = oUserView.byId("_dhmeI__nput").getValue(),
                     oCheckInTime = FinalDate
@@ -1383,7 +1383,7 @@ sap.ui.define([
                 //     MessageToast.show("Please Enter All Required Fields")
                 // } 
                 var bValid = true;
-                if (!oDriverName || oDriverName.length < 3 || !/^[a-zA-Z]+$/.test(oDriverName)) {
+                if (!oDriverName || oDriverName.length < 3 || !/^[a-zA-Z\s]+$/.test(oDriverName)) {
                     oUserView.byId("_IDGen__dfgdInput1").setValueState("Error");
                     oUserView.byId("_IDGen__dfgdInput1").setValueStateText("Name Must Contain 3 Characters (A-Z or a-z)");
                     bValid = false;
@@ -1406,15 +1406,14 @@ sap.ui.define([
                 } else {
                     oUserView.byId("afidasgredhmeI__nput").setValueState("None");
                 }
-                if (!oVendorName || oVendorName.length < 3 || !/^[a-zA-Z]+$/.test(oVendorName)) {
+                if (!oVendorName || oVendorName.length < 3 || !/^[a-zA-Z\s]+$/.test(oVendorName)) {
                     oUserView.byId("idss__n0075put").setValueState("Error");
                     oUserView.byId("idss__n0075put").setValueStateText("Vendor Name Must Contain 3 Characters (A-Z or a-z)");
                     bValid = false;
                 } else {
                     oUserView.byId("idss__n0075put").setValueState("None");
                 }
-                if (!odeliveryType || odeliveryType === "Select") {
-                    ;
+                if (!odeliveryType || odeliveryType === "SELECT") {
                     oUserView.byId("_IDGewertnSelect1").setValueState("Error")
                     oUserView.byId("_IDGewertnSelect1").setValueStateText("Please select atleast one option");
 
@@ -1432,12 +1431,9 @@ sap.ui.define([
                 if (!bValid) {
                     MessageToast.show("Please enter correct data");
                     return; // Prevent further execution
-
                 }
                 else {
-
                     if (oBookedDate === currentDate) {
-
                         const oVehicleFilter = new Filter("Assignedvehiclenumber", FilterOperator.EQ, oVehicleNumber)
                         oModel.read("/ZPARKING_SLOTS_SSet", {
                             filters: [oVehicleFilter],
@@ -1666,9 +1662,8 @@ sap.ui.define([
             },
 
             onDataAnalysisPress: async function () {
-                debugger
                 if (!this.oDataDialog) {
-                    this.oDataDialog = await this.loadFragment("DataAnalytics")
+                    this.oDataDialog = await this.loadFragment("DataAnalytic")
                 }
                 this.oDataDialog.open()
                 var oModel = this.getOwnerComponent().getModel();
